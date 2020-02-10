@@ -1,3 +1,3 @@
-module github.com/wernerd/GoRTP
+module github.com/tuotoo/GoRTP
 
 go 1.12
