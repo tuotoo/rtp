@@ -190,23 +190,23 @@ func (tp *TransportUDP) readCtrlPacket() {
 	tp.ctrlRecvStop = false
 	for {
 		//        tp.dataConn.SetReadDeadline(time.Now().Add(100 * time.Millisecond)) // 100 ms, re-test and remove after Go issue 2116 is solved
-		n, addr, err := tp.ctrlConn.ReadFromUDP(buf[0:])
+		_, _, err := tp.ctrlConn.ReadFromUDP(buf[0:])
 		if tp.ctrlRecvStop {
 			break
 		}
 		if err != nil {
 			break
 		}
-		rp, _ := newCtrlPacket()
-		rp.fromAddr.IpAddr = addr.IP
-		rp.fromAddr.CtrlPort = addr.Port
-		rp.fromAddr.DataPort = 0
-		rp.inUse = n
-		copy(rp.buffer, buf[0:n])
-
-		if tp.callUpper != nil {
-			tp.callUpper.OnRecvCtrl(rp)
-		}
+		//rp, _ := newCtrlPacket()
+		//rp.fromAddr.IpAddr = addr.IP
+		//rp.fromAddr.CtrlPort = addr.Port
+		//rp.fromAddr.DataPort = 0
+		//rp.inUse = n
+		//copy(rp.buffer, buf[0:n])
+		//
+		//if tp.callUpper != nil {
+		//	//tp.callUpper.OnRecvCtrl(rp)
+		//}
 	}
 	tp.ctrlConn.Close()
 	tp.transportEnd <- CtrlTransportRecvStopped
