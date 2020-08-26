@@ -95,7 +95,6 @@ func (rs *Session) rtcpService(ti, td int64) {
 			if now < rs.tnext {
 				continue
 			}
-
 			var outActive, inActive int // Counts all members in active state
 			var inActiveSinceLastRR int
 
@@ -234,8 +233,8 @@ func (rs *Session) rtcpService(ti, td int64) {
 // Other output streams just add their sender reports and SDES info.
 //
 func (rs *Session) buildRtcpPkt(strOut *SsrcStream, inStreamCnt int) (rc *CtrlPacket) {
-
 	var pktLen, offset int
+	var rrCnt int
 	if strOut.sender {
 		rc, offset = strOut.newCtrlPacket(RtcpSR)
 		offset = rc.addHeaderSsrc(offset, strOut.Ssrc())
@@ -243,16 +242,19 @@ func (rs *Session) buildRtcpPkt(strOut *SsrcStream, inStreamCnt int) (rc *CtrlPa
 		var info senderInfo
 		info, offset = rc.newSenderInfo()
 		strOut.fillSenderInfo(info) // create a sender info block after fixed header and SSRC.
+		pktLen = offset/4 - 1
 	} else {
 		rc, offset = strOut.newCtrlPacket(RtcpRR)
 		offset = rc.addHeaderSsrc(offset, strOut.Ssrc())
+		strOut.makeRecvReport(rc)
+		pktLen = offset/4 - 1
+		pktLen += reportBlockLen / 4 // increment SR/RR to include length of this recv report block
+		rrCnt++
 	}
-	pktLen = offset/4 - 1
 	// TODO Handle round-robin if we have more then 31 really active input streams (chap 6.4)
 	if inStreamCnt >= 31 {
 		inStreamCnt = 31
 	}
-	var rrCnt int
 	if inStreamCnt > 0 {
 		for _, strIn := range rs.streamsIn {
 			if strIn.dataAfterLastReport {

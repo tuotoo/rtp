@@ -123,7 +123,7 @@ type SsrcStream struct {
 	dataAfterLastReport bool
 }
 
-const defaultCname = "GoRTP1.0.0@somewhere"
+const defaultCname = "te13da495f323bf6"
 
 const seqNumMod = (1 << 16)
 
